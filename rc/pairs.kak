@@ -23,7 +23,7 @@
 # # (the only downside to having more pairing than desired is shortcut space)
 # declare-option -docstring "list of surrounding pairs" str-list pairs ()b {}B
 
-define-command -hidden -params 2 surround2 %{
+define-command -hidden -params 2 pairs_surround2 %{
   evaluate-commands -save-regs 'lr' %{
     set-register l "%arg{1}"
     set-register r "%arg{2}"
@@ -31,13 +31,13 @@ define-command -hidden -params 2 surround2 %{
     execute-keys -draft 'a<c-r>r'
   }
 }
-define-command -hidden -params 1 surround1 %{
-  surround2 %arg{1} %arg{1}
+define-command -hidden -params 1 pairs_surround1 %{
+  pairs_surround2 %arg{1} %arg{1}
 }
 define-command -docstring \
-"surround <left_symbol> [<right_symbol>]: surround the selection with a pair of symbols."\
--params 1..2 surround %{
-  %sh{echo surround$#} %arg{@}
+"pairs_surround <left_symbol> [<right_symbol>]: surround the selection with a pair of symbols."\
+-params 1..2 pairs_surround %{
+  %sh{echo pairs_surround$#} %arg{@}
 }
 
 # Disposable contexts start in normal mode, whereas non -draft context continue and alter the state of any given client.
@@ -48,8 +48,8 @@ define-command -docstring \
 # We could execute full command (or even commands, using mode lock) in normal mode from an insertion.
 # TODO : see if proxy user-mode already exists.
 define-command -hidden -docstring \
-"insert-pair <left_symbol> <right_symbol>: auxiliary function, not intended for use. It is the normal -draft part of insert-pair."\
--params 2 __insert-pair-aux %{
+"pairs_insert-aux <left_symbol> <right_symbol>: auxiliary function, not intended for use. It is the normal -draft part of pairs_insert-aux."\
+-params 2 pairs_insert-aux %{
   evaluate-commands -draft -save-regs 'lr' %{
     set-register l "%arg{1}"
     set-register r "%arg{2}"
@@ -62,67 +62,67 @@ define-command -hidden -docstring \
 }
 
 define-command -hidden -docstring \
-"insert-pair <left_symbol> <right_symbol>: insert a pair at cursor position"\
--params 2 insert-pair %{
+"pairs_insert <left_symbol> <right_symbol>: insert a pair at cursor position"\
+-params 2 pairs_insert %{
   evaluate-commands -save-regs '^' %{
-    __insert-pair-aux %arg{@}
+    pairs_insert-aux %arg{@}
     execute-keys 'z'
   }
 }
 
 define-command -hidden -docstring \
-"insert-pair-insert <left_symbol> <right_symbol>: like insert-pair, but from insert mode"\
--params 2 insert-pair-insert %{
+"pairs_insert-insert <left_symbol> <right_symbol>: like pairs_insert, but from insert mode"\
+-params 2 pairs_insert-insert %{
   evaluate-commands -save-regs '^' %{
-    __insert-pair-aux %arg{@}
+    pairs_insert-aux %arg{@}
     execute-keys '<a-;>z'
   }
 }
 
-## mode surround() from global
+## mode pairs_surround() from global
 # TODO register to automatically fill the mode, and count to be locked in it
 # TODO enter ? semi-colon ?
-# TODO custom surround
+# TODO custom pairs_surround
 # TODO on-key ?
-declare-user-mode surround
+declare-user-mode pairs_surround
 
-define-command -hidden -params 2 map-pair %{
-  ## map for surround
-  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global surround "<%arg{2}>" "<esc>: insert-pair %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
-  map -docstring "surround selections with %arg{1}%arg{2}" global surround "<%arg{1}>" "<esc>: surround %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
+define-command -hidden -params 2 pairs_map %{
+  ## map for pairs_surround
+  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global pairs_surround "<%arg{2}>" "<esc>: pairs_insert %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
+  map -docstring "surround selections with %arg{1}%arg{2}" global pairs_surround "<%arg{1}>" "<esc>: pairs_surround %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
 
   ## map for insert
-  map -docstring "surround selections with %arg{1}%arg{2}" global insert "<a-%arg{1}>" "<a-;>: surround %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
-  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global insert "<a-%arg{2}>" "<a-;>: insert-pair-insert %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
+  map -docstring "surround selections with %arg{1}%arg{2}" global insert "<a-%arg{1}>" "<a-;>: pairs_surround %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
+  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global insert "<a-%arg{2}>" "<a-;>: pairs_insert-insert %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
 }
 
 # TODO check that arg 3 is a (lower case) letter.
-define-command -hidden -params 3 map-pair-alias %{
-  ## map for surround
-  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global surround "<%arg{3}>" "<esc>: insert-pair %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
-  map -docstring "surround selections with %arg{1}%arg{2}" global surround "<a-%arg{3}>" "<esc>: surround %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
+define-command -hidden -params 3 pairs_map-alias %{
+  ## map for pairs_surround
+  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global pairs_surround "<%arg{3}>" "<esc>: pairs_insert %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
+  map -docstring "surround selections with %arg{1}%arg{2}" global pairs_surround "<a-%arg{3}>" "<esc>: pairs_surround %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
 }
 
 define-command -docstring \
-"enable-pairs: enable the pairs from the module" enable-pairs %{
-  map -docstring "surround mode" global user s ": enter-user-mode surround<ret>"
-  map -docstring "surround mode" global user S ": enter-user-mode -lock surround<ret>"
-  map-pair  (   )  ; map-pair-alias  (   )  b
-  map-pair  {   }  ; map-pair-alias  {   }  B
-  map-pair  [   ]  ; map-pair-alias  [   ]  r
-  map-pair  lt  gt ; map-pair-alias  lt  gt a
-  map-pair '"' '"' ; map-pair-alias '"' '"' Q
-  map-pair "'" "'" ; map-pair-alias "'" "'" q
-  map-pair '`' '`' ; map-pair-alias '`' '`' g
-  map-pair  |   |  ; map-pair-alias  |   |  p
-  map-pair space space ; map-pair-alias space space s
+"pairs_enable: enable the pairs from the module" pairs_enable %{
+  map -docstring "pairs_surround mode" global user s ": enter-user-mode pairs_surround<ret>"
+  map -docstring "pairs_surround mode" global user S ": enter-user-mode -lock pairs_surround<ret>"
+  pairs_map  (   )  ; pairs_map-alias  (   )  b
+  pairs_map  {   }  ; pairs_map-alias  {   }  B
+  pairs_map  [   ]  ; pairs_map-alias  [   ]  r
+  pairs_map  lt  gt ; pairs_map-alias  lt  gt a
+  pairs_map '"' '"' ; pairs_map-alias '"' '"' Q
+  pairs_map "'" "'" ; pairs_map-alias "'" "'" q
+  pairs_map '`' '`' ; pairs_map-alias '`' '`' g
+  pairs_map  |   |  ; pairs_map-alias  |   |  p
+  pairs_map space space ; pairs_map-alias space space s
 
   # for new lines we need to raw insert enter
   # TODO indentation
-  map -docstring "surround selections with %arg{1}%arg{2}" global surround <ret> '<esc>: surround "<c-v><ret>"<ret>'
-  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global insert <a-ret> '<a-;>: insert-pair-insert "<c-v><ret>" "<c-v><ret>"<ret>'
-  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global surround R '<esc>: insert-pair "<c-v><ret>" "<c-v><ret>"<ret>'
-  map -docstring "surround selections with %arg{1}%arg{2}" global surround <a-R> '<esc>: surround "<c-v><ret>"<ret>'
+  map -docstring "surround selections with %arg{1}%arg{2}" global pairs_surround <ret> '<esc>: pairs_surround "<c-v><ret>"<ret>'
+  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global insert <a-ret> '<a-;>: pairs_insert-insert "<c-v><ret>" "<c-v><ret>"<ret>'
+  map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global pairs_surround R '<esc>: pairs_insert "<c-v><ret>" "<c-v><ret>"<ret>'
+  map -docstring "surround selections with %arg{1}%arg{2}" global pairs_surround <a-R> '<esc>: pairs_surround "<c-v><ret>"<ret>'
 
 }
 
