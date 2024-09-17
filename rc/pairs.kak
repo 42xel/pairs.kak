@@ -94,6 +94,10 @@ define-command -hidden -params 2 pairs_map %{
   ## map for insert
   map -docstring "surround selections with %arg{1}%arg{2}" global insert "<a-%arg{1}>" "<a-;>: pairs_surround %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
   map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global insert "<a-%arg{2}>" "<a-;>: pairs_insert-insert %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
+
+  ## map for prompt, not exactly the same, as there is no selection to speak of
+  map -docstring "surround selections with %arg{1}%arg{2}" global prompt "<a-%arg{1}>" "<c-e>%arg{2}<c-a>%arg{1}<c-b>"
+  map -docstring "prompt a pair %arg{1}%arg{2} at cursor locations" global prompt "<a-%arg{2}>" "%arg{1}%arg{2}<c-b>"
 }
 
 # TODO check that arg 3 is a (lower case) letter.
