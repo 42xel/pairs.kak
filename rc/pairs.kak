@@ -21,7 +21,9 @@
 
 # # yet another advantage of manual over auto is that an option is less of a neccessity
 # # (the only downside to having more pairing than desired is shortcut space)
-# declare-option -docstring "list of surrounding pairs" str-list pairs ()b {}B
+
+# TODO: there seems to be an issue when there already something in the mark (^) register.
+# Investigate, test, and fix.
 
 define-command -hidden -params 2 pairs_surround2 %{
   evaluate-commands -save-regs 'lr' %{
@@ -96,8 +98,8 @@ define-command -hidden -params 2 pairs_map %{
   map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global insert "<a-%arg{2}>" "<a-;>: pairs_insert-insert %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
 
   ## map for prompt, not exactly the same, as there is no selection to speak of
-  map -docstring "surround selections with %arg{1}%arg{2}" global prompt "<a-%arg{1}>" "<c-e>%arg{2}<c-a>%arg{1}<c-b>"
-  map -docstring "prompt a pair %arg{1}%arg{2} at cursor locations" global prompt "<a-%arg{2}>" "%arg{1}%arg{2}<c-b>"
+  map -docstring "surround selections with %arg{1}%arg{2}" global prompt "<a-%arg{1}>" "<c-e><%arg{2}><c-a><%arg{1}><c-b>"
+  map -docstring "prompt a pair %arg{1}%arg{2} at cursor locations" global prompt "<a-%arg{2}>" "<%arg{1}><%arg{2}><c-b>"
 }
 
 # TODO check that arg 3 is a (lower case) letter.
@@ -107,8 +109,10 @@ define-command -hidden -params 3 pairs_map-alias %{
   map -docstring "surround selections with %arg{1}%arg{2}" global pairs_surround "<a-%arg{3}>" "<esc>: pairs_surround %%🐈<%arg{1}>🐈 %%🐈<%arg{2}>🐈<ret>"
 }
 
+# TODO ? use the option matching_pairs ?
+# with a hook as well ?
 define-command -docstring \
-"pairs_enable: enable the pairs from the module" pairs_enable %{
+  "pairs_enable: enable the pairs from the module" pairs_enable %{
   map -docstring "pairs_surround mode" global user s ": enter-user-mode pairs_surround<ret>"
   map -docstring "pairs_surround mode" global user S ": enter-user-mode -lock pairs_surround<ret>"
   pairs_map  (   )  ; pairs_map-alias  (   )  b
@@ -127,7 +131,5 @@ define-command -docstring \
   map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global insert <a-ret> '<a-;>: pairs_insert-insert "<c-v><ret>" "<c-v><ret>"<ret>'
   map -docstring "insert a pair %arg{1}%arg{2} at cursor locations" global pairs_surround R '<esc>: pairs_insert "<c-v><ret>" "<c-v><ret>"<ret>'
   map -docstring "surround selections with %arg{1}%arg{2}" global pairs_surround <a-R> '<esc>: pairs_surround "<c-v><ret>"<ret>'
-
 }
-
 
